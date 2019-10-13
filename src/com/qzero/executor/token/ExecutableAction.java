@@ -9,5 +9,6 @@ public interface ExecutableAction {
 
     int getParameterCount();
     double execute(Object[] parameters);
+    Class[] getParametersType();
 
 }

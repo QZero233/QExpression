@@ -3,18 +3,18 @@ package com.qzero.executor.exception;
 import com.qzero.executor.token.VariableToken;
 
 public class VariableFoundNotException extends IllegalArgumentException {
-    private VariableToken variableToken;
+    private String variableName;
 
-    public VariableFoundNotException(String s, VariableToken variableToken) {
-        super(s);
-        this.variableToken = variableToken;
+    public VariableFoundNotException(String variableName) {
+        super("Variable "+variableName+" has not been found in global variable loader when executing");
+        this.variableName = variableName;
     }
 
-    public VariableToken getVariableToken() {
-        return variableToken;
+    public String getVariableName() {
+        return variableName;
     }
 
-    public void setVariableToken(VariableToken variableToken) {
-        this.variableToken = variableToken;
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
     }
 }

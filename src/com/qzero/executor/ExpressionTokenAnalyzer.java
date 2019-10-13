@@ -106,7 +106,6 @@ public class ExpressionTokenAnalyzer {
 
             if(isDigestOnly(tokenString)){
                 //It's constant,just a number
-				//FIXME constant's dataMate is null
                 ConstantToken constantToken=new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE,Double.parseDouble(tokenString));
                 ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT,constantToken);
                 tokenList.add(token);

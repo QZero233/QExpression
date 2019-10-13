@@ -42,6 +42,11 @@ public class OperatorToken extends TokenObject {
                     public double execute(Object[] parameters) {
                         return  ((Double)parameters[0])+((Double) parameters[1]);
                     }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
                 });
             case "-":
                 return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableAction() {
@@ -53,6 +58,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public double execute(Object[] parameters) {
                         return ((Double)parameters[0])-((Double) parameters[1]);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
                     }
                 });
             case "*":
@@ -66,6 +76,11 @@ public class OperatorToken extends TokenObject {
                     public double execute(Object[] parameters) {
                         return ((Double)parameters[0])*((Double) parameters[1]);
                     }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
                 });
             case "/":
                 return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_DIVIDE, new ExecutableAction() {
@@ -77,6 +92,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public double execute(Object[] parameters) {
                         return ((Double)parameters[0])/((Double) parameters[1]);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
                     }
                 });
             default:

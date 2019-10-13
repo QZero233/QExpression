@@ -24,6 +24,11 @@ public class ExpressionCompilerTest {
             public double execute(Object[] parameters) {
                 return 0;
             }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Object.class};
+            }
         };
 
 

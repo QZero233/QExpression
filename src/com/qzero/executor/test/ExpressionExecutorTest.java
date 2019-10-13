@@ -13,8 +13,8 @@ import java.util.List;
 public class ExpressionExecutorTest {
 
     @Before
-    public void loadTestData(){
-        ExecutableAction sinAction=new ExecutableAction() {
+    public void loadTestData() {
+        ExecutableAction sinAction = new ExecutableAction() {
             @Override
             public int getParameterCount() {
                 return 1;
@@ -24,9 +24,14 @@ public class ExpressionExecutorTest {
             public double execute(Object[] parameters) {
                 return Math.sin((Double) parameters[0]);
             }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class};
+            }
         };
 
-        ExecutableAction cosAction=new ExecutableAction() {
+        ExecutableAction cosAction = new ExecutableAction() {
             @Override
             public int getParameterCount() {
                 return 1;
@@ -36,9 +41,14 @@ public class ExpressionExecutorTest {
             public double execute(Object[] parameters) {
                 return Math.cos((Double) parameters[0]);
             }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class};
+            }
         };
 
-        ExecutableAction lnAction=new ExecutableAction() {
+        ExecutableAction lnAction = new ExecutableAction() {
             @Override
             public int getParameterCount() {
                 return 1;
@@ -48,28 +58,38 @@ public class ExpressionExecutorTest {
             public double execute(Object[] parameters) {
                 return Math.log((Double) parameters[0]);
             }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class};
+            }
         };
 
 
-        FunctionLoader.addFunction("sin",sinAction);
-        FunctionLoader.addFunction("cos",cosAction);
-        FunctionLoader.addFunction("ln",lnAction);
+        FunctionLoader.addFunction("sin", sinAction);
+        FunctionLoader.addFunction("cos", cosAction);
+        FunctionLoader.addFunction("ln", lnAction);
 
-        ConstantLoader.addConstant("pi",Math.PI);
-        ConstantLoader.addConstant("e",Math.E);
+        ConstantLoader.addConstant("pi", Math.PI);
+        ConstantLoader.addConstant("e", Math.E);
 
 
     }
 
     @Test
-    public void testExecutor(){
-        String expression="sin(pi)+2*cos(x)+ln(e)";
-        VariableLoader.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,Math.PI));
-        List<ExpressionToken> analyzed= ExpressionTokenAnalyzer.analyzeExpression(expression);
-        List<ExpressionToken> compiled= ExpressionCompiler.compile(analyzed);
-        double result= ExpressionExecutor.executeCompiledExpression(compiled);
+    public void testExecutor() throws Exception {
+        String expression = "sin(pi)+2*cos(x)+ln(e)";
+        VariableLoader.addOrEditVariable("x", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, Math.PI));
+        //VariableLoader.addOrEditVariable("y", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_STRING, "233"));
+        List<ExpressionToken> analyzed = ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
 
-        System.out.println(String.format("%.4f",result));
+
+        ExpressionExecutor.check(compiled);
+        double result = ExpressionExecutor.executeCompiledExpression(compiled);
+        System.out.println(String.format("%.4f", result));
+
+
     }
 
 }

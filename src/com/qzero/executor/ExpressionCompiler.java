@@ -116,7 +116,6 @@ public class ExpressionCompiler {
             compileResult.add(operatorStack.pop());
         }
 
-        //TODO compile
         return compileResult;
     }
 

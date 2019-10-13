@@ -25,6 +25,11 @@ public class ExpressionAnalyzerTest {
             public double execute(Object[] parameters) {
                 return 0;
             }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Object.class};
+            }
         };
         FunctionLoader.addFunction("sin",emptyAction);
         FunctionLoader.addFunction("cos",emptyAction);
