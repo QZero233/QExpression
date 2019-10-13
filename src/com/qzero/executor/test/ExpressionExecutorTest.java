@@ -48,6 +48,23 @@ public class ExpressionExecutorTest {
             }
         };
 
+        ExecutableAction sigmaAction = new ExecutableAction() {
+            @Override
+            public int getParameterCount() {
+                return 4;
+            }
+
+            @Override
+            public double execute(Object[] parameters) {
+                return 0;
+            }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class,Double.class,String.class,String.class};
+            }
+        };
+
         ExecutableAction lnAction = new ExecutableAction() {
             @Override
             public int getParameterCount() {
@@ -69,6 +86,7 @@ public class ExpressionExecutorTest {
         FunctionLoader.addFunction("sin", sinAction);
         FunctionLoader.addFunction("cos", cosAction);
         FunctionLoader.addFunction("ln", lnAction);
+        FunctionLoader.addFunction("sigma", sigmaAction);
 
         ConstantLoader.addConstant("pi", Math.PI);
         ConstantLoader.addConstant("e", Math.E);
@@ -85,11 +103,20 @@ public class ExpressionExecutorTest {
         List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
 
 
-        ExpressionExecutor.check(compiled);
+        ExpressionExecutor.check(compiled,true);
         double result = ExpressionExecutor.executeCompiledExpression(compiled);
         System.out.println(String.format("%.4f", result));
+    }
 
+    @Test
+    public void testLatex() throws Exception{
+        String expression = "sin(sigma(1,2,\"cos(n)\",\"n\"))+2*cos(x)+ln(e)";
+        VariableLoader.addOrEditVariable("x", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, Math.PI));
+        List<ExpressionToken> analyzed = ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
 
+        String latex=ExpressionLatexTranslator.translateToLatex(compiled);
+        System.out.println(latex);
     }
 
 }

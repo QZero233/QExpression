@@ -130,12 +130,31 @@ public class ExpressionTokenAnalyzer {
             }
 
             //Then regard it as a variable
-            VariableToken variableToken=new VariableToken(tokenString,null);
+            VariableToken variableToken=new VariableToken(tokenString);
             ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE,variableToken);
             tokenList.add(token);
 
         }
         return tokenList;
+    }
+
+    /**
+     * Get all variables in an expression
+     * @param originExpression expression
+     * @return A list,which contains all variables
+     */
+    public static List<VariableToken> getAllVariableInExpression(String originExpression){
+        List<ExpressionToken> analyzed=analyzeExpression(originExpression);
+        if(analyzed==null || analyzed.isEmpty())
+            return new ArrayList<>();
+
+        List<VariableToken> result=new ArrayList<>();
+        for(ExpressionToken token:analyzed){
+            if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE)
+                result.add((VariableToken) token.getTokenObject());
+        }
+
+        return result;
     }
 
 }

@@ -77,7 +77,8 @@ public class ExpressionExecutor {
     /**
      * Check whether a compiled expression is ready to execute or not
      * If there is something wrong with the expression(such as variable missing),it'll throw exception
-     * @param compiledTokenList
+     * @param compiledTokenList The compiled token list
+     * @param doVariableCheck if true,it'll turn to global variable loader to check whether the variable has a certain value or not
      * @return If the compiled expression is ready to execute return,otherwise throw
      * @throws ConstantFoundNotException If a constant doesn't have a certain value,it'll be thrown
      * @throws VariableFoundNotException If a variable doesn't have a certain value,it'll be thrown
@@ -85,7 +86,7 @@ public class ExpressionExecutor {
      * @throws WrongOperationalTokenParameterException If a function or an operator can not get enough and suitable parameters,it'll be thrown
      * @throws WrongExpressionException If the size of constant stack is not 1 when executing over,which means the expression is wrong,it'll be thrown
      */
-    public static void check(List<ExpressionToken> compiledTokenList) throws
+    public static void check(List<ExpressionToken> compiledTokenList,boolean doVariableCheck) throws
             ConstantFoundNotException,VariableFoundNotException, FunctionFoundNotException,
             WrongOperationalTokenParameterException,WrongExpressionException {
 
@@ -105,6 +106,11 @@ public class ExpressionExecutor {
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
                 //Get the certain value of the variable and push into stack
+
+                if(!doVariableCheck){
+                    constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
+                    continue;
+                }
 
                 VariableToken variableToken= (VariableToken) token.getTokenObject();
                 BaseDataMate variableValue= VariableLoader.getVariableValue(variableToken.getTokenString());

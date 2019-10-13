@@ -9,26 +9,15 @@ import com.qzero.executor.BaseDataMate;
  */
 public class VariableToken extends TokenObject {
 
-    private BaseDataMate variableValue;
 
-    public VariableToken(String tokenString, BaseDataMate variableValue) {
+    public VariableToken(String tokenString) {
         super(tokenString);
-        this.variableValue = variableValue;
-    }
-
-    public BaseDataMate getVariableValue() {
-        return variableValue;
-    }
-
-    public void setVariableValue(BaseDataMate variableValue) {
-        this.variableValue = variableValue;
     }
 
     @Override
     public String toString() {
         return "VariableToken{" +
-                "variableValue=" + variableValue +
-                ", tokenString='" + tokenString + '\'' +
+                "tokenString='" + tokenString + '\'' +
                 '}';
     }
 }
