@@ -65,6 +65,40 @@ public class ExpressionExecutorTest {
             }
         };
 
+        ExecutableAction sqrtAction = new ExecutableAction() {
+            @Override
+            public int getParameterCount() {
+                return 1;
+            }
+
+            @Override
+            public double execute(Object[] parameters) {
+                return Math.sqrt((Double) parameters[0]);
+            }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class};
+            }
+        };
+
+        ExecutableAction powAction = new ExecutableAction() {
+            @Override
+            public int getParameterCount() {
+                return 2;
+            }
+
+            @Override
+            public double execute(Object[] parameters) {
+                return Math.pow((Double) parameters[0],(Double) parameters[1]);
+            }
+
+            @Override
+            public Class[] getParametersType() {
+                return new Class[]{Double.class,Double.class};
+            }
+        };
+
         ExecutableAction lnAction = new ExecutableAction() {
             @Override
             public int getParameterCount() {
@@ -87,9 +121,12 @@ public class ExpressionExecutorTest {
         FunctionLoader.addFunction("cos", cosAction);
         FunctionLoader.addFunction("ln", lnAction);
         FunctionLoader.addFunction("sigma", sigmaAction);
+        FunctionLoader.addFunction("pow", powAction);
+        FunctionLoader.addFunction("sqrt", sqrtAction);
 
         ConstantLoader.addConstant("pi", Math.PI);
         ConstantLoader.addConstant("e", Math.E);
+        ConstantLoader.addConstant("G", 6.67E-11);
 
 
     }
@@ -110,13 +147,29 @@ public class ExpressionExecutorTest {
 
     @Test
     public void testLatex() throws Exception{
-        String expression = "sin(sigma(1,2,\"cos(n)\",\"n\"))+2*cos(x)+ln(e)";
+        String expression = "sqrt((4*pow(pi,2)*pow(r,3))/(G*M))";
         VariableLoader.addOrEditVariable("x", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, Math.PI));
         List<ExpressionToken> analyzed = ExpressionTokenAnalyzer.analyzeExpression(expression);
         List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
 
         String latex=ExpressionLatexTranslator.translateToLatex(compiled);
         System.out.println(latex);
+    }
+
+    @Test
+    public void testCalculate() throws Exception{
+        String expression = "sqrt((4*pow(pi,2)*pow(r,3))/(G*M))";
+
+        VariableLoader.addOrEditVariable("M", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, 5.965E24));
+        VariableLoader.addOrEditVariable("r", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, 384403E3));
+
+        List<ExpressionToken> analyzed = ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
+
+        ExpressionExecutor.check(compiled,true);
+
+        Double result=ExpressionExecutor.executeCompiledExpression(compiled);
+        System.out.println(result/(60*60*24));
     }
 
 }
