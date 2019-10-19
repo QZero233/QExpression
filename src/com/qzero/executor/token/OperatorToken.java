@@ -29,6 +29,11 @@ public class OperatorToken extends TokenObject {
         this.action=action;
     }
 
+    /**
+     * Get operator token from operator string
+     * @param operatorSign
+     * @return Operator token object,null if failed
+     */
     public static OperatorToken getOperatorToken(String operatorSign){
         switch (operatorSign){
             case "+":

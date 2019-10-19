@@ -5,6 +5,7 @@ import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
 import com.qzero.executor.token.ExecutableAction;
 import com.qzero.executor.variable.VariableLoader;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,7 +57,24 @@ public class ExpressionExecutorTest {
 
             @Override
             public double execute(Object[] parameters) {
-                return 0;
+
+                double start= (double) parameters[0];
+                double end= (double) parameters[1];
+                String expression= (String) parameters[2];
+                String unknownName= (String) parameters[3];
+
+                List<ExpressionToken> analyzed=ExpressionTokenAnalyzer.analyzeExpression(expression);
+                List<ExpressionToken> compiled=ExpressionCompiler.compile(analyzed);
+
+                double sum=0;
+                for(int i = (int) start; i<end; i++){
+                    VariableLoader.addOrEditVariable(unknownName,new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,(double)i));
+                    double tmp=ExpressionExecutor.executeCompiledExpression(compiled);
+                    sum+=tmp;
+                }
+
+
+                return sum;
             }
 
             @Override
@@ -132,6 +150,21 @@ public class ExpressionExecutorTest {
     }
 
     @Test
+    public void testSigma() throws Exception{
+        String expression = "sigma(1,5,\"ln(n)\",\"n\")";
+
+        List<ExpressionToken> analyzed = ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled = ExpressionCompiler.compile(analyzed);
+
+        double result = ExpressionExecutor.executeCompiledExpression(compiled);
+        System.out.println(String.format("%.4f", result));
+
+        String json=ExpressionCompiler.exportToJsonString(compiled);
+        String latex=ExpressionLatexTranslator.translateToLatex(ExpressionCompiler.parseFromJsonString(json));
+        System.out.println(latex);
+    }
+
+    @Test
     public void testExecutor() throws Exception {
         String expression = "sin(pi)+2*cos(x)+ln(e)";
         VariableLoader.addOrEditVariable("x", new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE, Math.PI));
@@ -170,6 +203,36 @@ public class ExpressionExecutorTest {
 
         Double result=ExpressionExecutor.executeCompiledExpression(compiled);
         System.out.println(result/(60*60*24));
+    }
+
+    @Test
+    public void testJson(){
+        //Compile
+        String expression="sin(pi)+2*cos(x)";
+        VariableLoader.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,Math.PI));
+        List<ExpressionToken> analyzed= ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled= ExpressionCompiler.compile(analyzed);
+
+        String json=ExpressionCompiler.exportToJsonString(compiled);
+        System.out.println(json);
+
+        List<ExpressionToken> parsed=ExpressionCompiler.parseFromJsonString(json);
+        double result=ExpressionExecutor.executeCompiledExpression(parsed);
+
+        System.out.println(result+"");
+    }
+
+    @Test
+    public void testSimplify(){
+        String expression="2+1+x*2*3+pow(x,2)";//3+7+4
+        VariableLoader.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,2D));
+        List<ExpressionToken> analyzed= ExpressionTokenAnalyzer.analyzeExpression(expression);
+        List<ExpressionToken> compiled= ExpressionCompiler.compile(analyzed);
+        List<ExpressionToken> simplest=ExpressionCompiler.simplify(compiled);
+
+        double result = ExpressionExecutor.executeCompiledExpression(simplest);
+        Assert.assertEquals(result,14,0);
+        System.out.println(String.format("%.4f", result));
     }
 
 }

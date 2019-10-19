@@ -9,7 +9,7 @@ import com.qzero.executor.token.TokenObject;
  */
 public class ExpressionToken {
 
-    public static enum TokenType{
+    public enum TokenType{
         TOKEN_TYPE_CONSTANT,
         TOKEN_TYPE_VARIABLE,
         TOKEN_TYPE_FUNCTION,
@@ -19,6 +19,9 @@ public class ExpressionToken {
     private TokenType tokenType;
     //A certain object of this token which contains name,necessary parameters etc.
     private TokenObject tokenObject;
+
+    public ExpressionToken() {
+    }
 
     public ExpressionToken(TokenType tokenType, TokenObject tokenObject) {
         this.tokenType = tokenType;

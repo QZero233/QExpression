@@ -19,7 +19,7 @@ public class ExpressionTokenAnalyzer {
      * @param string string for checking
      * @return if it's a number(including floating number，negative number),return true,otherwise false
      */
-    private static boolean isDigestOnly(String string){
+    public static boolean isDigestOnly(String string){
         if(string==null || string.length()==0)
             return false;
         if(string.matches("^[+-]?\\d+(\\.\\d*)?$"))
@@ -58,7 +58,7 @@ public class ExpressionTokenAnalyzer {
                         constantString.append(tmp);
                     }
 
-                    ConstantToken constantToken=new ConstantToken(constantString.toString(), BaseDataMate.DataType.DATA_TYPE_STRING,constantString.toString());
+                    ConstantToken constantToken=new ConstantToken("\""+constantString.toString()+"\"", BaseDataMate.DataType.DATA_TYPE_STRING,constantString.toString());
                     ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT,constantToken);
                     tokenList.add(token);
                     continue;

@@ -1,8 +1,6 @@
 package com.qzero.executor;
 
-import com.qzero.executor.token.ExecutableAction;
-import com.qzero.executor.token.FunctionToken;
-import com.qzero.executor.token.OperatorToken;
+import com.qzero.executor.token.*;
 
 import java.util.List;
 import java.util.Stack;
@@ -44,14 +42,24 @@ public class ExpressionLatexTranslator {
         Stack<String> constantTokenStack = new Stack<>();
         for (ExpressionToken token : compiled) {
 
-            if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE || token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT) {
+            if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT) {
 
-                String constant = token.getTokenObject().getTokenString();
+                ConstantToken constantToken= (ConstantToken) token.getTokenObject();
+
+                String constant = constantToken.getTokenString();
+                if(constantToken.getDataMate().getDataType()== BaseDataMate.DataType.DATA_TYPE_STRING)
+                    constant=constantToken.getDataMate().getDataValue().toString();
+
                 if (constant.equals("pi"))
                     constant = "\\pi ";
 
                 constantTokenStack.push(constant);
                 continue;
+            }else if(token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
+
+                VariableToken variableToken= (VariableToken) token.getTokenObject();
+                constantTokenStack.push(variableToken.getTokenString());
+
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
 
                 OperatorToken operatorToken = (OperatorToken) token.getTokenObject();
@@ -83,6 +91,8 @@ public class ExpressionLatexTranslator {
     }
 
     private static String getOperatorLatex(OperatorToken.OperatorType type,String arg1,String arg2){
+        arg1=translateToLatex(arg1);
+        arg2=translateToLatex(arg2);
 
         if(type== OperatorToken.OperatorType.OPERATOR_TYPE_MULTIPLY){
             if(arg1.matches(REGEX_FOR_EXPRESSION_WITH_OPERATOR))
@@ -117,6 +127,9 @@ public class ExpressionLatexTranslator {
     }
 
     private static String getFunctionLatex(String functionName, String[] parameters) {
+        for(int i=0;i<parameters.length;i++){
+            parameters[i]=translateToLatex(parameters[i]);
+        }
 
         switch (functionName) {
             case "integrate":
