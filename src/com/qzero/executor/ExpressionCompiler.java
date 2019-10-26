@@ -70,6 +70,12 @@ public class ExpressionCompiler {
 
                         compileResult.add(tmpToken);
                     }
+                }else if(splitToken.getType()== SplitToken.SplitType.SPLIT_TYPE_COMMA){
+                    //Pop until meet (
+                    //The parameter should always be the highest
+                    while (!operatorStack.isEmpty() && !operatorStack.peek().getTokenObject().getTokenString().equals("(")){
+                        compileResult.add(operatorStack.pop());
+                    }
                 }
 
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){

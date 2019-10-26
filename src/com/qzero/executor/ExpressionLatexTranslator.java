@@ -11,13 +11,16 @@ public class ExpressionLatexTranslator {
 
     public static String translateToLatex(String originExpression){
         if(originExpression==null)
-            return null;
+            return originExpression;
 
         List<ExpressionToken> analyzed=ExpressionTokenAnalyzer.analyzeExpression(originExpression);
         if(analyzed==null)
-            return null;
+            return originExpression;
 
         List<ExpressionToken> compiled=ExpressionCompiler.compile(analyzed);
+        String latex=translateToLatex(compiled);
+        if(latex==null)
+            return originExpression;
         return translateToLatex(compiled);
     }
 
@@ -63,11 +66,23 @@ public class ExpressionLatexTranslator {
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
 
                 OperatorToken operatorToken = (OperatorToken) token.getTokenObject();
+                int[] parametersCounts=operatorToken.getAction().getParametersCounts();
 
-                String arg2 = constantTokenStack.pop();
-                String arg1 = constantTokenStack.pop();
+                //To know how many parameters should the action take
+                int count=0;
+                for(int i:parametersCounts){
+                    //Let count as big as it can
+                    if(constantTokenStack.size()>=i && count<i){
+                        count=i;
+                    }
+                }
 
-                constantTokenStack.push(getOperatorLatex(operatorToken.getType(),arg1,arg2));
+                String[] args=new String[count];
+                for(int i=0;i<count;i++){
+                    args[count-1-i]=constantTokenStack.pop();
+                }
+
+                constantTokenStack.push(getOperatorLatex(operatorToken.getType(),args));
 
                 continue;
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION) {
@@ -90,27 +105,35 @@ public class ExpressionLatexTranslator {
         return constantTokenStack.pop();
     }
 
-    private static String getOperatorLatex(OperatorToken.OperatorType type,String arg1,String arg2){
-        arg1=translateToLatex(arg1);
-        arg2=translateToLatex(arg2);
+    private static String getOperatorLatex(OperatorToken.OperatorType type,String[] args){
+        int count=args.length;
+        for(int i=0;i<count;i++){
+            String current=args[i];
+            //current=translateToLatex(current);
 
-        if(type== OperatorToken.OperatorType.OPERATOR_TYPE_MULTIPLY){
-            if(arg1.matches(REGEX_FOR_EXPRESSION_WITH_OPERATOR))
-                arg1="("+arg1+")";
-            if(arg2.matches(REGEX_FOR_EXPRESSION_WITH_OPERATOR))
-                arg2="("+arg2+")";
+            if(i<2 && type==OperatorToken.OperatorType.OPERATOR_TYPE_MULTIPLY){
+                if(current.matches(REGEX_FOR_EXPRESSION_WITH_OPERATOR))
+                    current="("+current+")";
+            }
+
+            current="{"+current+"}";
+
+            args[i]=current;
         }
 
-
-
-        arg1="{"+arg1+"}";
-        arg2="{"+arg2+"}";
-
+        String arg1=args[0];
+        String arg2=null;
+        if(count>=2)
+            arg2=args[1];
 
         switch (type) {
             case OPERATOR_TYPE_ADD:
+                if(arg2==null)
+                    return "+"+arg1;
                 return arg1 + "+" + arg2;
             case OPERATOR_TYPE_MINUS:
+                if(arg2==null)
+                    return "-"+arg1;
                 return arg1 + "-" + arg2;
             case OPERATOR_TYPE_DIVIDE:
                 return "\\frac{" + arg1 + "}{" + arg2 + "}";
@@ -126,10 +149,22 @@ public class ExpressionLatexTranslator {
         }
     }
 
+    private static String insertBrackets(String parameter){
+        if(parameter==null)
+            return "";//TODO THROW EXCEPTION TO SHOW TRANSLATION FAILED
+
+        //If it's not pure number or pure letters it may need brackets
+        if(!parameter.matches("\\d.*") && !parameter.matches("[A-Za-z].*")
+                && !parameter.equals("\\pi "))
+            parameter="("+parameter+")";
+        return parameter;
+    }
+
+
     private static String getFunctionLatex(String functionName, String[] parameters) {
-        for(int i=0;i<parameters.length;i++){
+        /*for(int i=0;i<parameters.length;i++){
             parameters[i]=translateToLatex(parameters[i]);
-        }
+        }*/
 
         switch (functionName) {
             case "integrate":
@@ -138,6 +173,7 @@ public class ExpressionLatexTranslator {
                 String iExpression = parameters[2];
                 String iUnknown = parameters[3];
 
+                iExpression=translateToLatex(iExpression);
                 iExpression += "d" + iUnknown;
 
                 return "\\int_{" + iStart + "}^{" + iEnd + "}{" + iExpression + "}";
@@ -146,6 +182,7 @@ public class ExpressionLatexTranslator {
                 String iEndX = parameters[1];
                 String iExpressionX = parameters[2];
 
+                iExpressionX=translateToLatex(iExpressionX);
                 iExpressionX += "dX";
 
                 return "\\int_{" + iStartX + "}^{" + iEndX + "}{" + iExpressionX + "}";
@@ -155,6 +192,9 @@ public class ExpressionLatexTranslator {
                 String sExpression = parameters[2];
                 String sUnknown = parameters[3];
 
+                sExpression=translateToLatex(sExpression);
+                sExpression=insertBrackets(sExpression);
+
                 sStart = sUnknown + "=" + sStart;
                 return "\\sum_{" + sStart + "}^{" + sEnd + "}{" + sExpression + "}";
             case "sigmaN":
@@ -162,25 +202,37 @@ public class ExpressionLatexTranslator {
                 String sEndN = parameters[1];
                 String sExpressionN = parameters[2];
 
+                sExpressionN=translateToLatex(sExpressionN);
+                sExpressionN=insertBrackets(sExpressionN);
+
                 sStartN = "n=" + sStartN;
                 return "\\sum_{" + sStartN + "}^{" + sEndN + "}{" + sExpressionN + "}";
             case "derivative":
                 String dExpression = parameters[0];
                 String dUnknown = parameters[1];
 
+                dExpression=translateToLatex(dExpression);
+
                 return "\\frac{d}{d" + dUnknown + "}{" + dExpression + "}";
             case "derivativeX":
                 String dExpressionX = parameters[0];
+
+                dExpressionX=translateToLatex(dExpressionX);
 
                 return "\\frac{d}{dx}{" + dExpressionX + "}";
             case "pow":
                 String powerBase = parameters[0];
                 String powerIndex = parameters[1];
 
-                return powerBase + "^{" + powerIndex + "}";
+                powerBase=insertBrackets(powerBase);
+
+                return "{"+powerBase + "}^{" + powerIndex + "}";
             case "log":
                 String logBase = parameters[0];
                 String realNumber = parameters[1];
+
+                realNumber=insertBrackets(realNumber);
+
                 return "log_{" + logBase + "}{" + realNumber + "}";
             case "sqrt":
                 return "\\sqrt{" + parameters[0] + "}";

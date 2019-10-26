@@ -38,16 +38,42 @@ public class ExpressionExecutor {
                 BaseDataMate variableValue= VariableLoader.getVariableValue(variableToken.getTokenString());
                 constantStack.push(variableValue);
                 continue;
-            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR || token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION){
+            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
+                //Got an operational token,just do it
+                OperatorToken operatorToken= (OperatorToken) token.getTokenObject();
+                ExecutableActionForOperator action=operatorToken.getAction();
+
+                int[] parametersCounts=action.getParametersCounts();
+
+                //To know how many parameters should the action take
+                int count=0;
+                for(int i:parametersCounts){
+                    //Let count as big as it can
+                    if(constantStack.size()>=i && count<i){
+                        count=i;
+                    }
+                }
+
+                Object[] parameters=new Object[count];
+                for(int i=0;i<count;i++){
+                    if(constantStack.isEmpty())
+                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+
+
+                    BaseDataMate dataMate=constantStack.pop();
+                    parameters[count-1-i]=dataMate.getDataValue();
+                }
+
+                Double result=action.execute(parameters);
+                if(result==null)
+                    throw new IllegalArgumentException("Exception in executing operator "+token.getTokenObject().getTokenString());
+
+                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result));
+            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION){
                 //Got an operational token,just do it
                 ExecutableAction action;
-                if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
-                    OperatorToken operatorToken= (OperatorToken) token.getTokenObject();
-                    action=operatorToken.getAction();
-                }else{
-                    FunctionToken functionToken= (FunctionToken) token.getTokenObject();
-                    action=functionToken.getAction();
-                }
+                FunctionToken functionToken= (FunctionToken) token.getTokenObject();
+                action=functionToken.getAction();
 
                 int parameterCount=action.getParameterCount();
                 Object[] parameters=new Object[parameterCount];
@@ -120,16 +146,39 @@ public class ExpressionExecutor {
 
                 constantStack.push(variableValue);
                 continue;
-            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR || token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION){
+            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
+                //Got an operational token,just do it
+                OperatorToken operatorToken= (OperatorToken) token.getTokenObject();
+                ExecutableActionForOperator action=operatorToken.getAction();
+
+                int[] parametersCounts=action.getParametersCounts();
+
+                //To know how many parameters should the action take
+                int count=0;
+                for(int i:parametersCounts){
+                    //Let count as big as it can
+                    if(constantStack.size()>=i && count<i){
+                        count=i;
+                    }
+                }
+
+
+                for(int i=0;i<count;i++){
+                    if(constantStack.isEmpty())
+                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+
+                    constantStack.pop();
+                }
+
+
+                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
+
+            }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION){
                 //Got an operational token,just do it
                 ExecutableAction action;
-                if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
-                    OperatorToken operatorToken= (OperatorToken) token.getTokenObject();
-                    action=operatorToken.getAction();
-                }else{
-                    FunctionToken functionToken= (FunctionToken) token.getTokenObject();
-                    action=functionToken.getAction();
-                }
+                FunctionToken functionToken= (FunctionToken) token.getTokenObject();
+                action=functionToken.getAction();
+
 
                 if(action==null)
                     throw new FunctionFoundNotException(token.getTokenObject().getTokenString());
