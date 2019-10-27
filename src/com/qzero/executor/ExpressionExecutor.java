@@ -2,9 +2,8 @@ package com.qzero.executor;
 
 import com.qzero.executor.exception.*;
 import com.qzero.executor.token.*;
-import com.qzero.executor.variable.VariableLoader;
+import com.qzero.executor.variable.VariableEnv;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -21,7 +20,7 @@ public class ExpressionExecutor {
      * @return The value of the expression
      * @throws
      */
-    public static double executeCompiledExpression(List<ExpressionToken> rpnToken){
+    public static double executeCompiledExpression(List<ExpressionToken> rpnToken, VariableEnv env){
         if(rpnToken==null || rpnToken.isEmpty())
             throw new IllegalArgumentException("RPN Expression can not be null or empty");
 
@@ -35,7 +34,11 @@ public class ExpressionExecutor {
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
                 //Get the certain value of the variable and push into stack
                 VariableToken variableToken= (VariableToken) token.getTokenObject();
-                BaseDataMate variableValue= VariableLoader.getVariableValue(variableToken.getTokenString());
+                BaseDataMate variableValue= env.getVariableValue(variableToken.getTokenString());
+
+                if(variableValue==null)
+                    throw new VariableFoundNotException(variableToken.getTokenString());
+
                 constantStack.push(variableValue);
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
@@ -105,7 +108,6 @@ public class ExpressionExecutor {
      * Check whether a compiled expression is ready to execute or not
      * If there is something wrong with the expression(such as variable missing),it'll throw exception
      * @param compiledTokenList The compiled token list
-     * @param doVariableCheck if true,it'll turn to global variable loader to check whether the variable has a certain value or not
      * @return If the compiled expression is ready to execute return,otherwise throw
      * @throws ConstantFoundNotException If a constant doesn't have a certain value,it'll be thrown
      * @throws VariableFoundNotException If a variable doesn't have a certain value,it'll be thrown
@@ -113,7 +115,7 @@ public class ExpressionExecutor {
      * @throws WrongOperationalTokenParameterException If a function or an operator can not get enough and suitable parameters,it'll be thrown
      * @throws WrongExpressionException If the size of constant stack is not 1 when executing over,which means the expression is wrong,it'll be thrown
      */
-    public static void check(List<ExpressionToken> compiledTokenList,boolean doVariableCheck) throws
+    public static void check(List<ExpressionToken> compiledTokenList) throws
             ConstantFoundNotException,VariableFoundNotException, FunctionFoundNotException,
             WrongOperationalTokenParameterException,WrongExpressionException {
 
@@ -133,18 +135,7 @@ public class ExpressionExecutor {
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
                 //Get the certain value of the variable and push into stack
-
-                if(!doVariableCheck){
-                    constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
-                    continue;
-                }
-
-                VariableToken variableToken= (VariableToken) token.getTokenObject();
-                BaseDataMate variableValue= VariableLoader.getVariableValue(variableToken.getTokenString());
-                if(variableValue==null)
-                    throw new VariableFoundNotException(variableToken.getTokenString());
-
-                constantStack.push(variableValue);
+                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
                 //Got an operational token,just do it

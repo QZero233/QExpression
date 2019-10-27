@@ -35,7 +35,7 @@ public class ExpressionLatexTranslator {
             return null;
 
         try {
-            ExpressionExecutor.check(compiled, false);
+            ExpressionExecutor.check(compiled);
         } catch (Exception e) {
             e.printStackTrace();
             //Expression check failed,it can not be translated
@@ -150,16 +150,15 @@ public class ExpressionLatexTranslator {
     }
 
     private static String insertBrackets(String parameter){
+        //If it's not pure number or pure letters it may need brackets
         if(parameter==null)
             return "";//TODO THROW EXCEPTION TO SHOW TRANSLATION FAILED
 
-        //If it's not pure number or pure letters it may need brackets
         if(!parameter.matches("\\d.*") && !parameter.matches("[A-Za-z].*")
                 && !parameter.equals("\\pi "))
             parameter="("+parameter+")";
         return parameter;
     }
-
 
     private static String getFunctionLatex(String functionName, String[] parameters) {
         /*for(int i=0;i<parameters.length;i++){

@@ -4,7 +4,6 @@ import com.qzero.executor.*;
 import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
 import com.qzero.executor.token.ExecutableAction;
-import com.qzero.executor.variable.VariableLoader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +44,6 @@ public class ExpressionCompilerTest {
     @Test
     public void testCompiler(){
         String expression="sin(pi)+2*cos(x)";
-        VariableLoader.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,Math.PI));
         List<ExpressionToken> analyzed= ExpressionTokenAnalyzer.analyzeExpression(expression);
         List<ExpressionToken> compiled= ExpressionCompiler.compile(analyzed);
         for(ExpressionToken token:compiled){

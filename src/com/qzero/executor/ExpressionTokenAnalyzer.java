@@ -3,7 +3,6 @@ package com.qzero.executor;
 import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
 import com.qzero.executor.token.*;
-import com.qzero.executor.variable.VariableLoader;
 
 import java.util.*;
 

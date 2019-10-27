@@ -4,7 +4,6 @@ import com.qzero.executor.*;
 import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
 import com.qzero.executor.token.ExecutableAction;
-import com.qzero.executor.variable.VariableLoader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,9 +66,7 @@ public class MinusFixTest {
 
                 double sum=0;
                 for(int i = (int) start; i<end; i++){
-                    VariableLoader.addOrEditVariable(unknownName,new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,(double)i));
-                    double tmp= ExpressionExecutor.executeCompiledExpression(compiled);
-                    sum+=tmp;
+                    sum+=0;
                 }
 
 
@@ -158,7 +155,7 @@ public class MinusFixTest {
         List<ExpressionToken> analyzed=ExpressionTokenAnalyzer.analyzeExpression(expression);
         List<ExpressionToken> compiled=ExpressionCompiler.compile(analyzed);
 
-        ExpressionExecutor.check(compiled,false);
+        ExpressionExecutor.check(compiled);
 
         String latex=ExpressionLatexTranslator.translateToLatex(compiled);
         System.out.println(latex);
