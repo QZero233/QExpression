@@ -5,9 +5,7 @@ import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
 import com.qzero.executor.token.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Compiler to compile analyzed expression
@@ -49,6 +47,8 @@ public class ExpressionCompiler {
         Stack<ExpressionToken> operatorStack=new Stack<>();
 
         for(ExpressionToken token:tokenList){
+
+
             if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT){
                 //It's a constant just push into result
                 compileResult.add(token);

@@ -130,10 +130,14 @@ public class ExpressionLatexTranslator {
             case OPERATOR_TYPE_ADD:
                 if(arg2==null)
                     return "+"+arg1;
+                if(arg1.equals("{0}"))
+                    arg1="";
                 return arg1 + "+" + arg2;
             case OPERATOR_TYPE_MINUS:
                 if(arg2==null)
                     return "-"+arg1;
+                if(arg1.equals("{0}"))
+                    arg1="";
                 return arg1 + "-" + arg2;
             case OPERATOR_TYPE_DIVIDE:
                 return "\\frac{" + arg1 + "}{" + arg2 + "}";

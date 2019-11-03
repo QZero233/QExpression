@@ -1,5 +1,8 @@
 package com.qzero.executor;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Token reader
  * @author QZero
@@ -52,6 +55,11 @@ public class ExpressionReader {
                     //If it's only a operator or a split,just let it go,that's the answer
                     break;
                 }else{
+                    if(tmpStream.charAt(tmpStream.length()-2)=='e' || tmpStream.charAt(tmpStream.length()-2)=='E'){
+                        //Which means it's e expression,skip
+                        continue;
+                    }
+
                     //Which means we got the start of next token,back a position and exit the loop
                     lastReadIndex--;
                     tmpStream.deleteCharAt(tmpStream.length()-1);

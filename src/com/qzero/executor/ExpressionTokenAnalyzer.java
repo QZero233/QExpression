@@ -13,6 +13,8 @@ import java.util.*;
  */
 public class ExpressionTokenAnalyzer {
 
+    private static final String REGEX_FOR_E_EXPRESSION="(((-([1-9]\\d*.\\d*|0.\\d*[1-9]\\d*))|(([1-9]\\d*.\\d*|0.\\d*[1-9]\\d*)))|(([1-9]\\d*)|(-[1-9]\\d*)))(e|E)(([1-9]\\d*)|(-[1-9]\\d*))";
+
     /**
      * To check whether the string is a number or not
      * @param string string for checking
@@ -37,9 +39,12 @@ public class ExpressionTokenAnalyzer {
         //Stack<String> stringConstantStack=new Stack<>();
         Queue<String> stringConstantQueue=new LinkedList<>();
 
+
         ExpressionReader reader=new ExpressionReader(expression);
         String tokenString;
+        int currentPos=-1;
         while((tokenString=reader.readNextTokenAsString())!=null){
+            currentPos++;
 
             if(tokenString.equals("\"")){
                 if(stringConstantQueue.isEmpty()){
@@ -75,6 +80,30 @@ public class ExpressionTokenAnalyzer {
                 OperatorToken operatorToken=OperatorToken.getOperatorToken(tokenString);
                 if(operatorToken!=null){
                     //It's really an operator
+
+                    //If it's minus or add and there isn't any number in front of it(maybe the former is a spilt(not right bracket) or empty)
+                    if(operatorToken.getType()== OperatorToken.OperatorType.OPERATOR_TYPE_MINUS || operatorToken.getType()== OperatorToken.OperatorType.OPERATOR_TYPE_ADD){
+                        ConstantToken zero=new ConstantToken("0", BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D);
+                        ExpressionToken zeroToken=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT,zero);
+
+                        if(tokenList.isEmpty()){
+                            //There isn't anything front,add 0
+                            tokenList.add(zeroToken);
+                        }
+                        ExpressionToken former=tokenList.get(tokenList.size()-1);
+                        if(former.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_SPLIT){
+                            SplitToken splitToken= (SplitToken) former.getTokenObject();
+                            if(splitToken.getType()!= SplitToken.SplitType.SPLIT_TYPE_BRACKETS_RIGHT){
+                                //Also add 0
+                                tokenList.add(zeroToken);
+                            }
+                        }else if(former.getTokenType()==ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
+                            //Also add 0
+                            tokenList.add(zeroToken);
+                        }
+                    }
+
+
                     ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR,operatorToken);
                     tokenList.add(token);
                     continue;
@@ -103,8 +132,26 @@ public class ExpressionTokenAnalyzer {
 
             }
 
+            if(tokenString.matches(REGEX_FOR_E_EXPRESSION)){
+                //It's e expression which means it's a constant
+                tokenString=tokenString.replace("e","E");
+
+                String[] tmp=tokenString.split("E");
+                Double base=Double.parseDouble(tmp[0]);
+                Integer power=Integer.parseInt(tmp[1]);
+
+                Double result=Math.pow(10,power)*base;
+
+                ConstantToken constantToken=new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
+                ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT,constantToken);
+                tokenList.add(token);
+                continue;
+            }
+
             if(isDigestOnly(tokenString)){
                 //It's constant,just a number
+
+                //If the former is minus
                 ConstantToken constantToken=new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE,Double.parseDouble(tokenString));
                 ExpressionToken token=new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT,constantToken);
                 tokenList.add(token);

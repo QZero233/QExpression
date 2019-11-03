@@ -16,6 +16,7 @@ public class OperatorToken extends TokenObject {
         OPERATOR_TYPE_MINUS,
         OPERATOR_TYPE_MULTIPLY,
         OPERATOR_TYPE_DIVIDE,
+        OPERATOR_TYPE_E,
     };
 
     private int operatorLevel;
@@ -40,7 +41,7 @@ public class OperatorToken extends TokenObject {
                 return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_ADD, new ExecutableActionForOperator() {
                     @Override
                     public int[] getParametersCounts() {
-                        return new int[]{1,2};
+                        return new int[]{2};
                     }
 
                     @Override
@@ -67,7 +68,7 @@ public class OperatorToken extends TokenObject {
                 return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableActionForOperator() {
                     @Override
                     public int[] getParametersCounts() {
-                        return new int[]{1,2};
+                        return new int[]{2};
                     }
 
                     @Override
