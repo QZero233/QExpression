@@ -66,16 +66,7 @@ public class ExpressionLatexTranslator {
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
 
                 OperatorToken operatorToken = (OperatorToken) token.getTokenObject();
-                int[] parametersCounts=operatorToken.getAction().getParametersCounts();
-
-                //To know how many parameters should the action take
-                int count=0;
-                for(int i:parametersCounts){
-                    //Let count as big as it can
-                    if(constantTokenStack.size()>=i && count<i){
-                        count=i;
-                    }
-                }
+                int count=operatorToken.getAction().getParameterCount();
 
                 String[] args=new String[count];
                 for(int i=0;i<count;i++){

@@ -14,107 +14,12 @@ public class EFixTest {
 
     @Before
     public void loadTestData() {
-        ExecutableAction sinAction = new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 1;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return Math.sin((Double) parameters[0]);
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Double.class};
-            }
-        };
-
-        ExecutableAction cosAction = new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 1;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return Math.cos((Double) parameters[0]);
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Double.class};
-            }
-        };
-
-
-        ExecutableAction sqrtAction = new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 1;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return Math.sqrt((Double) parameters[0]);
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Double.class};
-            }
-        };
-
-        ExecutableAction powAction = new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 2;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return Math.pow((Double) parameters[0],(Double) parameters[1]);
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Double.class,Double.class};
-            }
-        };
-
-        ExecutableAction lnAction = new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 1;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return Math.log((Double) parameters[0]);
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Double.class};
-            }
-        };
-
-
-        FunctionLoader.addFunction("sin", sinAction);
-        FunctionLoader.addFunction("cos", cosAction);
-        FunctionLoader.addFunction("ln", lnAction);
-        FunctionLoader.addFunction("pow", powAction);
-        FunctionLoader.addFunction("sqrt", sqrtAction);
-
-        ConstantLoader.addConstant("pi", Math.PI);
-        ConstantLoader.addConstant("e", Math.E);
-        ConstantLoader.addConstant("G", 6.67E-11);
+        Init.init();
     }
 
     @Test
     public void testFixE(){
-        String expression="-sqrt(1-pow(1/2,2))";
+        String expression="-b+sqrt(pow(b,2)-4*a*c)/(2*a)";
         List<ExpressionToken> analyzed=ExpressionTokenAnalyzer.analyzeExpression(expression);
         List<ExpressionToken> compiled=ExpressionCompiler.compile(analyzed);
 

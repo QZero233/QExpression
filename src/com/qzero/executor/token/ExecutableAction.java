@@ -1,5 +1,7 @@
 package com.qzero.executor.token;
 
+import com.qzero.executor.BaseDataMate;
+
 /**
  * Interface for executable action(such as operator or function)
  * @author QZero
@@ -8,7 +10,7 @@ package com.qzero.executor.token;
 public interface ExecutableAction {
 
     int getParameterCount();
-    double execute(Object[] parameters);
+    BaseDataMate execute(BaseDataMate[] parameters);
     Class[] getParametersType();
 
 }

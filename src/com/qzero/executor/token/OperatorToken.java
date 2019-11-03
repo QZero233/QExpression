@@ -1,5 +1,7 @@
 package com.qzero.executor.token;
 
+import com.qzero.executor.BaseDataMate;
+
 /**
  * Class of operator token
  * @author QZero
@@ -7,6 +9,7 @@ package com.qzero.executor.token;
  */
 public class OperatorToken extends TokenObject {
 
+    public static final int LEVEL_VERY_LOW=0;
     public static final int LEVEL_LOW=1;
     public static final int LEVEL_HIGH=2;
     public static final int LEVEL_HIGHEST=3;
@@ -16,14 +19,21 @@ public class OperatorToken extends TokenObject {
         OPERATOR_TYPE_MINUS,
         OPERATOR_TYPE_MULTIPLY,
         OPERATOR_TYPE_DIVIDE,
-        OPERATOR_TYPE_E,
+        OPERATOR_TYPE_EQUAL_TO,
+        OPERATOR_TYPE_MORE_THAN,
+        OPERATOR_TYPE_LESS_THAN,
+        OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO,
+        OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO,
+        OPERATOR_TYPE_AND,
+        OPERATOR_TYPE_OR,
+        OPERATOR_TYPE_NOT,
     };
 
     private int operatorLevel;
     private OperatorType type;
-    private ExecutableActionForOperator action;
+    private ExecutableAction action;
 
-    private OperatorToken(String tokenString, int operatorLevel, OperatorType type,ExecutableActionForOperator action) {
+    private OperatorToken(String tokenString, int operatorLevel, OperatorType type,ExecutableAction action) {
         super(tokenString);
         this.operatorLevel = operatorLevel;
         this.type = type;
@@ -38,25 +48,16 @@ public class OperatorToken extends TokenObject {
     public static OperatorToken getOperatorToken(String operatorSign){
         switch (operatorSign){
             case "+":
-                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_ADD, new ExecutableActionForOperator() {
-                    @Override
-                    public int[] getParametersCounts() {
-                        return new int[]{2};
-                    }
-
+                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_ADD, new ExecutableAction() {
                     @Override
                     public int getParameterCount() {
                         return 2;
                     }
 
                     @Override
-                    public double execute(Object[] parameters) {
-                        if(parameters.length==1)
-                            return (Double)parameters[0];
-                        else if(parameters.length==2)
-                            return  ((Double)parameters[0])+((Double) parameters[1]);
-                        else
-                            throw new IllegalArgumentException("Operator add must have one or two parameters");
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Double result=((Double)parameters[0].getDataValue())+((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
                     }
 
                     @Override
@@ -65,26 +66,18 @@ public class OperatorToken extends TokenObject {
                     }
                 });
             case "-":
-                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableActionForOperator() {
-                    @Override
-                    public int[] getParametersCounts() {
-                        return new int[]{2};
-                    }
-
+                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableAction() {
                     @Override
                     public int getParameterCount() {
                         return 2;
                     }
 
                     @Override
-                    public double execute(Object[] parameters) {
-                        if(parameters.length==1)
-                            return -(Double)parameters[0];
-                        else if(parameters.length==2)
-                            return  ((Double)parameters[0])-((Double) parameters[1]);
-                        else
-                            throw new IllegalArgumentException("Operator minus must have one or two parameters");
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Double result=((Double)parameters[0].getDataValue())-((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
                     }
+
 
                     @Override
                     public Class[] getParametersType() {
@@ -92,20 +85,16 @@ public class OperatorToken extends TokenObject {
                     }
                 });
             case "*":
-                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_MULTIPLY, new ExecutableActionForOperator() {
-                    @Override
-                    public int[] getParametersCounts() {
-                        return new int[]{2};
-                    }
-
+                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_MULTIPLY, new ExecutableAction() {
                     @Override
                     public int getParameterCount() {
                         return 2;
                     }
 
                     @Override
-                    public double execute(Object[] parameters) {
-                        return ((Double)parameters[0])*((Double) parameters[1]);
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Double result=((Double)parameters[0].getDataValue())*((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
                     }
 
                     @Override
@@ -114,11 +103,7 @@ public class OperatorToken extends TokenObject {
                     }
                 });
             case "/":
-                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_DIVIDE, new ExecutableActionForOperator() {
-                    @Override
-                    public int[] getParametersCounts() {
-                        return new int[]{2};
-                    }
+                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_DIVIDE, new ExecutableAction() {
 
                     @Override
                     public int getParameterCount() {
@@ -126,13 +111,166 @@ public class OperatorToken extends TokenObject {
                     }
 
                     @Override
-                    public double execute(Object[] parameters) {
-                        return ((Double)parameters[0])/((Double) parameters[1]);
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Double result=((Double)parameters[0].getDataValue())/((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
                     }
 
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case "==":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_EQUAL_TO, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Double)parameters[0].getDataValue()).equals((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case ">":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_MORE_THAN, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Double)parameters[0].getDataValue())>((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case "<":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Double)parameters[0].getDataValue())<((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case ">=":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Double)parameters[0].getDataValue())>=((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case "<=":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Double)parameters[0].getDataValue())<=((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+                });
+            case "!":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_NOT, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 1;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=!((Boolean)parameters[0].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Boolean.class};
+                    }
+                });
+            case "||":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_OR, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Boolean)parameters[0].getDataValue())||((Boolean)parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Boolean.class,Boolean.class};
+                    }
+                });
+            case "&&":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_AND, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=((Boolean)parameters[0].getDataValue())&&((Boolean)parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Boolean.class,Boolean.class};
                     }
                 });
             default:
@@ -156,11 +294,11 @@ public class OperatorToken extends TokenObject {
         this.type = type;
     }
 
-    public ExecutableActionForOperator getAction() {
+    public ExecutableAction getAction() {
         return action;
     }
 
-    public void setAction(ExecutableActionForOperator action) {
+    public void setAction(ExecutableAction action) {
         this.action = action;
     }
 

@@ -9,7 +9,8 @@ public class BaseDataMate {
 
     public enum DataType {
         DATA_TYPE_STRING,
-        DATA_TYPE_DOUBLE
+        DATA_TYPE_DOUBLE,
+        DATA_TYPE_BOOLEAN
     }
 
     private DataType dataType;
@@ -25,6 +26,9 @@ public class BaseDataMate {
 
         if(constantType== DataType.DATA_TYPE_DOUBLE && !(constantValue instanceof Double))
             throw new IllegalArgumentException("Constant type wrong,it's supposed to be Double");
+
+        if(constantType==DataType.DATA_TYPE_BOOLEAN && !(constantValue instanceof Boolean))
+            throw new IllegalArgumentException("Constant type wrong,it's supposed to be Boolean");
 
         this.dataType=constantType;
         this.dataValue=constantValue;

@@ -15,27 +15,7 @@ public class ExpressionAnalyzerTest {
 
     @Before
     public void loadTestData(){
-        ExecutableAction emptyAction=new ExecutableAction() {
-            @Override
-            public int getParameterCount() {
-                return 1;
-            }
-
-            @Override
-            public double execute(Object[] parameters) {
-                return 0;
-            }
-
-            @Override
-            public Class[] getParametersType() {
-                return new Class[]{Object.class};
-            }
-        };
-        FunctionLoader.addFunction("sin",emptyAction);
-        FunctionLoader.addFunction("cos",emptyAction);
-
-        ConstantLoader.addConstant("pi",Math.PI);
-        ConstantLoader.addConstant("e",Math.E);
+        Init.init();
     }
 
     @Test
