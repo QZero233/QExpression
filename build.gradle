@@ -1,8 +1,10 @@
+apply plugin: 'maven'
+
 plugins {
     id 'java'
 }
 
-group 'QExpresssion'
+group 'com.github.QZero233'
 version '1.0'
 
 sourceCompatibility = 1.8
