@@ -1,8 +1,8 @@
-apply plugin: 'maven'
-
 plugins {
     id 'java'
 }
+
+apply plugin: 'maven'
 
 group 'com.github.QZero233'
 version '1.0'
