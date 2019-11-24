@@ -1,6 +1,7 @@
 package com.qzero.executor;
 
 import com.qzero.executor.exception.*;
+import com.qzero.executor.token.OperatorToken;
 import com.qzero.executor.token.*;
 import com.qzero.executor.variable.VariableEnv;
 
@@ -21,6 +22,9 @@ public class ExpressionExecutor {
      * @throws
      */
     public static BaseDataMate executeCompiledExpression(List<ExpressionToken> rpnToken, VariableEnv env){
+        if(env==null)
+            env=new VariableEnv(null);
+
         if(rpnToken==null || rpnToken.isEmpty())
             throw new IllegalArgumentException("RPN Expression can not be null or empty");
 
@@ -51,12 +55,12 @@ public class ExpressionExecutor {
                 BaseDataMate[] parameters=new BaseDataMate[count];
                 for(int i=0;i<count;i++){
                     if(constantStack.isEmpty())
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                        throw new WrongOperationalTokenParameterException(token,action);
 
 
                     BaseDataMate dataMate=constantStack.pop();
                     if(!checkType(parameterTypes[count-1-i],dataMate))
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                        throw new WrongOperationalTokenParameterException(token,parameterTypes[count-1-i],dataMate.getDataValue().getClass(),i);
 
                     parameters[count-1-i]=dataMate;
                 }
@@ -79,12 +83,12 @@ public class ExpressionExecutor {
                 for(int i=0;i<parameterCount;i++){
 
                     if(constantStack.isEmpty())
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                        throw new WrongOperationalTokenParameterException(token,action);
 
 
                     BaseDataMate dataMate=constantStack.pop();
                     if(!checkType(parameterTypes[parameterCount-1-i],dataMate))
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                        throw new WrongOperationalTokenParameterException(token,parameterTypes[parameterCount-1-i],dataMate.getDataValue().getClass(),i);
 
                     parameters[parameterCount-1-i]=dataMate;
                 }
@@ -106,6 +110,8 @@ public class ExpressionExecutor {
     private static boolean checkType(Class cls,BaseDataMate dataMate){
         if(cls==null || dataMate==null)
             return false;
+        if(dataMate.getDataType()== BaseDataMate.DataType.DATA_TYPE_UNKNOWN)
+            return true;
         if(dataMate.getDataType()== BaseDataMate.DataType.DATA_TYPE_STRING && cls.equals(String.class))
             return true;
         else if(dataMate.getDataType()== BaseDataMate.DataType.DATA_TYPE_DOUBLE && cls.equals(Double.class))
@@ -113,6 +119,19 @@ public class ExpressionExecutor {
         else if(dataMate.getDataType()== BaseDataMate.DataType.DATA_TYPE_BOOLEAN && cls.equals(Boolean.class))
             return true;
         return false;
+    }
+
+    private static BaseDataMate newDataMateByClass(Class cls){
+        if(cls==null)
+            return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_UNKNOWN,null);
+        else if(cls.equals(String.class))
+            return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_STRING,"");
+        else if(cls.equals(Double.class))
+            return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D);
+        else if(cls.equals(Boolean.class))
+            return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,new Boolean(true));
+        else
+            throw new IllegalArgumentException("Unknown data type");
     }
 
     /**
@@ -146,7 +165,7 @@ public class ExpressionExecutor {
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
                 //Get the certain value of the variable and push into stack
-                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
+                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_UNKNOWN,null));
                 continue;
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR){
                 //Got an operational token,just do it
@@ -154,16 +173,28 @@ public class ExpressionExecutor {
                 ExecutableAction action=operatorToken.getAction();
                 int count=action.getParameterCount();
 
+                BaseDataMate operatorParameters[]=new BaseDataMate[count];
 
                 for(int i=0;i<count;i++){
                     if(constantStack.isEmpty())
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                        throw new WrongOperationalTokenParameterException(token,action);
 
-                    constantStack.pop();
+                    operatorParameters[i]=constantStack.pop();
                 }
 
+                //Check if the type is suitable
+                Class[] operatorParameterTypes=action.getParametersType();
+                for(int i=0;i<count;i++){
+                    if(!checkType(operatorParameterTypes[i],operatorParameters[i]))
+                        throw new WrongOperationalTokenParameterException(token,operatorParameterTypes[i],operatorParameters[i].getDataValue().getClass(),i);
+                }
 
-                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
+                Class returnValue=action.getReturnValueType();
+                if(returnValue==null){
+                    throw new IllegalArgumentException("The return value of "+token.getTokenObject().getTokenString()+" can not be null");
+                }
+
+                constantStack.push(newDataMateByClass(returnValue));
 
             }else if(token.getTokenType()== ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION){
                 //Got an operational token,just do it
@@ -177,25 +208,26 @@ public class ExpressionExecutor {
 
                 int parameterCount=action.getParameterCount();
                 if(constantStack.size()<parameterCount)
-                    throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,"");
+                    throw new WrongOperationalTokenParameterException(token,action);
 
                 Class[] types=action.getParametersType();
                 if(types==null || types.length<parameterCount)
-                    throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,
-                            "the given action doesn't provide enough info of parameters");
+                    throw new WrongOperationalTokenParameterException(token,action);
 
                 for(int i=0;i<parameterCount;i++){
                     BaseDataMate dataMate=constantStack.pop();
-                    Object value=dataMate.getDataValue();
 
                     Class parameterType=types[parameterCount-1-i];
-                    if(!value.getClass().equals(parameterType))
-                        throw new WrongOperationalTokenParameterException(token.getTokenObject().getTokenString(),action,
-                                "the type should be "+parameterType.getSimpleName()+" not "+value.getClass().getSimpleName());
+                    if(!checkType(parameterType,dataMate))
+                        throw new WrongOperationalTokenParameterException(token,parameterType,dataMate.getDataValue().getClass(),i);
                 }
 
+                Class returnValue=action.getReturnValueType();
+                if(returnValue==null){
+                    throw new IllegalArgumentException("The return value of "+token.getTokenObject().getTokenString()+" can not be null");
+                }
 
-                constantStack.push(new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,0D));
+                constantStack.push(newDataMateByClass(returnValue));
             }
         }
 

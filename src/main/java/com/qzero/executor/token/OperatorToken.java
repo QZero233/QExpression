@@ -20,6 +20,7 @@ public class OperatorToken extends TokenObject {
         OPERATOR_TYPE_MULTIPLY,
         OPERATOR_TYPE_DIVIDE,
         OPERATOR_TYPE_EQUAL_TO,
+        OPERATOR_TYPE_NOT_EQUAL_TO,
         OPERATOR_TYPE_MORE_THAN,
         OPERATOR_TYPE_LESS_THAN,
         OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO,
@@ -64,6 +65,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Double.class;
+                    }
                 });
             case "-":
                 return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableAction() {
@@ -83,6 +89,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Double.class;
+                    }
                 });
             case "*":
                 return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_MULTIPLY, new ExecutableAction() {
@@ -100,6 +111,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Double.class;
                     }
                 });
             case "/":
@@ -120,6 +136,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Double.class;
+                    }
                 });
             case "==":
                 return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_EQUAL_TO, new ExecutableAction() {
@@ -138,6 +159,35 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                });
+            case "!=":
+                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_NOT_EQUAL_TO, new ExecutableAction() {
+
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Boolean result=!((Double)parameters[0].getDataValue()).equals((Double) parameters[1].getDataValue());
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
                     }
                 });
             case ">":
@@ -158,6 +208,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
                 });
             case "<":
                 return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN, new ExecutableAction() {
@@ -176,6 +231,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
                     }
                 });
             case ">=":
@@ -196,6 +256,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
                 });
             case "<=":
                 return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO, new ExecutableAction() {
@@ -214,6 +279,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
                     }
                 });
             case "!":
@@ -234,6 +304,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Boolean.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
                 });
             case "||":
                 return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_OR, new ExecutableAction() {
@@ -253,6 +328,11 @@ public class OperatorToken extends TokenObject {
                     public Class[] getParametersType() {
                         return new Class[]{Boolean.class,Boolean.class};
                     }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
                 });
             case "&&":
                 return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_AND, new ExecutableAction() {
@@ -271,6 +351,11 @@ public class OperatorToken extends TokenObject {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Boolean.class,Boolean.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
                     }
                 });
             default:

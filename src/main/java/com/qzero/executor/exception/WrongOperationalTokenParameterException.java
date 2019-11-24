@@ -1,31 +1,42 @@
 package com.qzero.executor.exception;
 
+import com.qzero.executor.ExpressionToken;
 import com.qzero.executor.token.ExecutableAction;
 
 public class WrongOperationalTokenParameterException extends IllegalArgumentException {
 
-    private String operationalName;
-    private ExecutableAction action;
+    private String message;
+    private ExpressionToken token;
 
-    public WrongOperationalTokenParameterException(String operationalName, ExecutableAction action,String more) {
-        super("Wrong operational token parameter when compiling operational token "+operationalName+",the count should be "+action.getParameterCount()+","+more);
-        this.operationalName = operationalName;
-        this.action = action;
+
+    /**
+     * For parameter count exception
+     */
+    public WrongOperationalTokenParameterException(ExpressionToken token, ExecutableAction action) {
+        super();
+        this.token=token;
+        message="Wrong operational token parameter when compiling operational token \""+token.getTokenObject().getTokenString()+"\"\n";
+        message+="The count of parameters is wrong,it should be "+action.getParameterCount();
+        message+= "Wrong token start at "+token.getStartAt()+" and end at "+token.getEndAt();
     }
 
-    public String getOperationalName() {
-        return operationalName;
+    /**
+     * For parameter type exception
+     */
+    public WrongOperationalTokenParameterException(ExpressionToken token,Class required,Class given,int index) {
+        super();
+        this.token=token;
+        message="Wrong operational token parameter when compiling operational token \""+token.getTokenObject().getTokenString()+"\"\n";
+        message+= "The number "+(index+1)+" parameter "+required.getSimpleName()+" is required while "+given.getSimpleName()+" is given\n";
+        message+= "Wrong token start at "+token.getStartAt()+" and end at "+token.getEndAt();
     }
 
-    public void setOperationalName(String operationalName) {
-        this.operationalName = operationalName;
+    public String getMessage() {
+        return message;
     }
 
-    public ExecutableAction getAction() {
-        return action;
+    public ExpressionToken getToken() {
+        return token;
     }
 
-    public void setAction(ExecutableAction action) {
-        this.action = action;
-    }
 }

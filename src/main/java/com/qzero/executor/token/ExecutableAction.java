@@ -12,5 +12,6 @@ public interface ExecutableAction {
     int getParameterCount();
     BaseDataMate execute(BaseDataMate[] parameters);
     Class[] getParametersType();
+    Class getReturnValueType();
 
 }

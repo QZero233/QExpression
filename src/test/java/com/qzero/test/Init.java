@@ -1,4 +1,4 @@
-package com.qzero.executor.test;
+package com.qzero.test;
 
 import com.qzero.executor.*;
 import com.qzero.executor.constant.ConstantLoader;
@@ -152,6 +152,11 @@ public class Init {
             public Class[] getParametersType() {
                 return new Class[]{Double.class};
             }
+
+            @Override
+            public Class getReturnValueType() {
+                return Double.class;
+            }
         };
 
         FunctionLoader.addFunction("sqrt", sqrtAction);
@@ -159,6 +164,12 @@ public class Init {
         ConstantLoader.addConstant("pi", Math.PI);
         ConstantLoader.addConstant("e", Math.E);
         ConstantLoader.addConstant("G", 6.67E-11);
+    }
+
+    public static List<ExpressionToken> getCompiled(String script){
+        List<ExpressionToken> analyzed=ExpressionTokenAnalyzer.analyzeExpression(script);
+        analyzed=ExpressionCompiler.compile(analyzed);
+        return analyzed;
     }
 
 }

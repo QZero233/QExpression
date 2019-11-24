@@ -2,6 +2,7 @@ package com.qzero.executor;
 
 import com.qzero.executor.constant.ConstantLoader;
 import com.qzero.executor.function.FunctionLoader;
+import com.qzero.executor.token.OperatorToken;
 import com.qzero.executor.token.*;
 
 import java.util.*;
@@ -43,9 +44,8 @@ public class ExpressionTokenAnalyzer {
 
         ExpressionReader reader = new ExpressionReader(expression);
         String tokenString;
-        int currentPos = -1;
+
         while ((tokenString = reader.readNextTokenAsString()) != null) {
-            currentPos++;
 
             if (tokenString.equals("\"")) {
                 if (stringConstantQueue.isEmpty()) {
@@ -64,7 +64,7 @@ public class ExpressionTokenAnalyzer {
                     }
 
                     ConstantToken constantToken = new ConstantToken("\"" + constantString.toString() + "\"", BaseDataMate.DataType.DATA_TYPE_STRING, constantString.toString());
-                    ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken);
+                    ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken,reader.getLastReadIndex());
                     tokenList.add(token);
                     continue;
                 }
@@ -84,7 +84,7 @@ public class ExpressionTokenAnalyzer {
                 //If it's minus or add and there isn't any number in front of it(maybe the former is a spilt(not right bracket) or empty)
                 if (operatorToken.getType() == OperatorToken.OperatorType.OPERATOR_TYPE_MINUS || operatorToken.getType() == OperatorToken.OperatorType.OPERATOR_TYPE_ADD) {
                     ConstantToken zero = new ConstantToken("0", BaseDataMate.DataType.DATA_TYPE_DOUBLE, 0D);
-                    ExpressionToken zeroToken = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, zero);
+                    ExpressionToken zeroToken = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, zero,-1);
 
                     if (tokenList.isEmpty()) {
                         //There isn't anything front,add 0
@@ -104,7 +104,7 @@ public class ExpressionTokenAnalyzer {
                 }
 
 
-                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR, operatorToken);
+                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR, operatorToken,reader.getLastReadIndex());
                 tokenList.add(token);
                 continue;
             }
@@ -126,7 +126,7 @@ public class ExpressionTokenAnalyzer {
 
                 if (splitToken != null) {
                     //It's really a split
-                    ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_SPLIT, splitToken);
+                    ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_SPLIT, splitToken,reader.getLastReadIndex());
                     tokenList.add(token);
                     continue;
                 }
@@ -145,7 +145,7 @@ public class ExpressionTokenAnalyzer {
                 Double result = Math.pow(10, power) * base;
 
                 ConstantToken constantToken = new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE, result);
-                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken);
+                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken,reader.getLastReadIndex());
                 tokenList.add(token);
                 continue;
             }
@@ -155,7 +155,7 @@ public class ExpressionTokenAnalyzer {
 
                 //If the former is minus
                 ConstantToken constantToken = new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE, Double.parseDouble(tokenString));
-                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken);
+                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken,reader.getLastReadIndex());
                 tokenList.add(token);
                 continue;
             }
@@ -163,7 +163,7 @@ public class ExpressionTokenAnalyzer {
             if (ConstantLoader.isConstant(tokenString)) {
                 //It's also a constant such as pi
                 ConstantToken constantToken = new ConstantToken(tokenString, BaseDataMate.DataType.DATA_TYPE_DOUBLE, ConstantLoader.getConstantValue(tokenString));
-                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken);
+                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT, constantToken,reader.getLastReadIndex());
                 tokenList.add(token);
                 continue;
             }
@@ -172,14 +172,14 @@ public class ExpressionTokenAnalyzer {
                 //It's a function
                 ExecutableAction function = FunctionLoader.getFunction(tokenString);
                 FunctionToken functionToken = new FunctionToken(tokenString, function);
-                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION, functionToken);
+                ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION, functionToken,reader.getLastReadIndex());
                 tokenList.add(token);
                 continue;
             }
 
             //Then regard it as a variable
             VariableToken variableToken = new VariableToken(tokenString);
-            ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE, variableToken);
+            ExpressionToken token = new ExpressionToken(ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE, variableToken,reader.getLastReadIndex());
             tokenList.add(token);
 
         }

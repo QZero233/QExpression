@@ -20,12 +20,33 @@ public class ExpressionToken {
     //A certain object of this token which contains name,necessary parameters etc.
     private TokenObject tokenObject;
 
+    private int startAt,endAt;
+
     public ExpressionToken() {
     }
 
-    public ExpressionToken(TokenType tokenType, TokenObject tokenObject) {
+    public ExpressionToken(TokenType tokenType, TokenObject tokenObject, int endAt) {
         this.tokenType = tokenType;
         this.tokenObject = tokenObject;
+        endAt++;
+        this.endAt = endAt;
+        startAt=endAt-tokenObject.getTokenString().length();
+    }
+
+    public int getStartAt() {
+        return startAt;
+    }
+
+    public void setStartAt(int startAt) {
+        this.startAt = startAt;
+    }
+
+    public int getEndAt() {
+        return endAt;
+    }
+
+    public void setEndAt(int endAt) {
+        this.endAt = endAt;
     }
 
     public TokenType getTokenType() {
@@ -49,6 +70,8 @@ public class ExpressionToken {
         return "ExpressionToken{" +
                 "tokenType=" + tokenType +
                 ", tokenObject=" + tokenObject +
+                ", startAt=" + startAt +
+                ", endAt=" + endAt +
                 '}';
     }
 }

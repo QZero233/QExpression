@@ -19,6 +19,10 @@ public class ExpressionReader {
         this.expression = expression;
     }
 
+    public int getLastReadIndex() {
+        return lastReadIndex;
+    }
+
     /**
      * Read next char of the expression
      * @return Char read
