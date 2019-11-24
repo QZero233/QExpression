@@ -1,5 +1,7 @@
 package com.qzero.executor;
 
+import java.util.Date;
+
 /**
  * Basic data mate to store data
  * @author QZero
@@ -11,6 +13,7 @@ public class BaseDataMate {
         DATA_TYPE_STRING,
         DATA_TYPE_DOUBLE,
         DATA_TYPE_BOOLEAN,
+        DATA_TYPE_DATE,
         DATA_TYPE_UNKNOWN
     }
 
@@ -31,6 +34,9 @@ public class BaseDataMate {
         if(constantType==DataType.DATA_TYPE_BOOLEAN && !(constantValue instanceof Boolean))
             throw new IllegalArgumentException("Constant type wrong,it's supposed to be Boolean");
 
+        if(constantType==DataType.DATA_TYPE_DATE && !(constantValue instanceof Date))
+            throw new IllegalArgumentException("Constant type wrong,it's supposed to be Date");
+
         if(constantType==DataType.DATA_TYPE_UNKNOWN && constantValue!=null)
             throw new IllegalArgumentException("Constant type wrong,it's supposed to be NULL");
 
@@ -42,16 +48,8 @@ public class BaseDataMate {
         return dataType;
     }
 
-    public void setDataType(DataType dataType) {
-        this.dataType = dataType;
-    }
-
     public Object getDataValue() {
         return dataValue;
-    }
-
-    public void setDataValue(Object dataValue) {
-        this.dataValue = dataValue;
     }
 
     @Override
