@@ -5,6 +5,8 @@ import com.qzero.executor.function.ExecutableAction;
 import com.qzero.executor.function.IExecutableAction;
 import com.qzero.executor.token.OperatorToken;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,19 +52,26 @@ public class OperatorLoader {
 
                     @Override
                     public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean value1= (Boolean) parameters[0].getDataValue();
-                        Boolean value2= (Boolean) parameters[1].getDataValue();
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,value1||value2);
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        Calendar calendar=Calendar.getInstance();
+                        calendar.setTimeInMillis(time1+time2);
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,calendar.getTime());
                     }
 
                     @Override
                     public Class[] getParametersType() {
-                        return new Class[]{Boolean.class,Boolean.class};
+                        return new Class[]{Date.class,Date.class};
                     }
 
                     @Override
                     public Class getReturnValueType() {
-                        return Boolean.class;
+                        return Date.class;
                     }
                 }
         ).build();
@@ -92,6 +101,37 @@ public class OperatorLoader {
                     @Override
                     public Class getReturnValueType() {
                         return Double.class;
+                    }
+                }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        Calendar calendar=Calendar.getInstance();
+                        calendar.setTimeInMillis(time1-time2);
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,calendar.getTime());
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Date.class;
                     }
                 }
         ).build();
@@ -183,6 +223,34 @@ public class OperatorLoader {
                         return Boolean.class;
                     }
                 }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1==time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
         ).build();
         operatorLoader.put("==",actionForEqualTo);
 
@@ -203,6 +271,34 @@ public class OperatorLoader {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1!=time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
                     }
 
                     @Override
@@ -237,6 +333,34 @@ public class OperatorLoader {
                         return Boolean.class;
                     }
                 }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1>time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
         ).build();
         operatorLoader.put(">",actionForMoreThan);
 
@@ -257,6 +381,34 @@ public class OperatorLoader {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1<time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
                     }
 
                     @Override
@@ -291,6 +443,34 @@ public class OperatorLoader {
                         return Boolean.class;
                     }
                 }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1>=time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
         ).build();
         operatorLoader.put(">=",actionForMoreThanOrEqualTo);
 
@@ -311,6 +491,34 @@ public class OperatorLoader {
                     @Override
                     public Class[] getParametersType() {
                         return new Class[]{Double.class,Double.class};
+                    }
+
+                    @Override
+                    public Class getReturnValueType() {
+                        return Boolean.class;
+                    }
+                }
+        ).addAction(
+                new IExecutableAction() {
+                    @Override
+                    public int getParameterCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public BaseDataMate execute(BaseDataMate[] parameters) {
+                        Date value1= (Date) parameters[0].getDataValue();
+                        Date value2= (Date) parameters[1].getDataValue();
+
+                        long time1=value1.getTime();
+                        long time2=value2.getTime();
+
+                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,time1<=time2);
+                    }
+
+                    @Override
+                    public Class[] getParametersType() {
+                        return new Class[]{Date.class,Date.class};
                     }
 
                     @Override

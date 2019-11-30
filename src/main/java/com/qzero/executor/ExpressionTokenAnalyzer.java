@@ -38,6 +38,7 @@ public class ExpressionTokenAnalyzer {
      * @return
      */
     public static List<ExpressionToken> analyzeExpression(String expression) {
+        //TODO recognize date
         List<ExpressionToken> tokenList = new ArrayList<>();
 
         //Stack<String> stringConstantStack=new Stack<>();

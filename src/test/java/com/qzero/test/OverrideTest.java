@@ -25,12 +25,21 @@ public class OverrideTest {
 
     @Test
     public void testOverrideOperator(){
-        String expression="(x+y)&&z";
+        String expression="x+y";
         List<ExpressionToken> compiled=Init.getCompiled(expression);
 
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        Date date1=calendar.getTime();
+
+        calendar.setTimeInMillis(1000*60*60);
+
+        Date date2=calendar.getTime();
+
         VariableEnv env=new VariableEnv(new HashMap<>());
-        env.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,true));
-        env.addOrEditVariable("y",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,false));
+        env.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,date1));
+        env.addOrEditVariable("y",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,date2));
         env.addOrEditVariable("z",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,false));
 
         System.out.println(ExpressionExecutor.executeCompiledExpression(compiled,env));
@@ -104,6 +113,24 @@ public class OverrideTest {
 
         System.out.println(ExpressionExecutor.executeCompiledExpression(compiled,env));
 
+    }
+
+    @Test
+    public void testDate(){
+        String expression="(x+y)>=z";
+        List<ExpressionToken> compiled=Init.getCompiled(expression);
+
+        Calendar calendar=Calendar.getInstance();
+
+        VariableEnv env=new VariableEnv(new HashMap<>());
+        env.addOrEditVariable("x",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,calendar.getTime()));
+        env.addOrEditVariable("y",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,new Date(1000*60)));
+
+        calendar.add(Calendar.SECOND,60);
+        env.addOrEditVariable("z",new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DATE,calendar.getTime()));
+
+
+        System.out.println(ExpressionExecutor.executeCompiledExpression(compiled,env));
     }
 
 }
