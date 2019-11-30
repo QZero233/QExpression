@@ -1,7 +1,5 @@
 package com.qzero.executor.function;
 
-import com.qzero.executor.token.ExecutableAction;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +39,7 @@ public class FunctionLoader {
         return function;
     }
 
-    public static void addFunction(String functionName,ExecutableAction action){
+    public static void addFunction(String functionName, ExecutableAction action){
         functionMap.put(functionName,action);
     }
 

@@ -2,8 +2,9 @@ package com.qzero.test;
 
 import com.qzero.executor.*;
 import com.qzero.executor.constant.ConstantLoader;
+import com.qzero.executor.function.ExecutableAction;
 import com.qzero.executor.function.FunctionLoader;
-import com.qzero.executor.token.ExecutableAction;
+import com.qzero.executor.function.IExecutableAction;
 
 import java.util.List;
 
@@ -136,7 +137,7 @@ public class Init {
         FunctionLoader.addFunction("pow", powAction);
         FunctionLoader.addFunction("sqrt", sqrtAction);*/
 
-        ExecutableAction sqrtAction = new ExecutableAction() {
+        IExecutableAction sqrtAction = new IExecutableAction() {
             @Override
             public int getParameterCount() {
                 return 1;
@@ -159,7 +160,7 @@ public class Init {
             }
         };
 
-        FunctionLoader.addFunction("sqrt", sqrtAction);
+        FunctionLoader.addFunction("sqrt", new ExecutableAction.Builder().addAction(sqrtAction).build());
 
         ConstantLoader.addConstant("pi", Math.PI);
         ConstantLoader.addConstant("e", Math.E);

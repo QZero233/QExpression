@@ -1,9 +1,14 @@
 package com.qzero.executor;
 
+import com.qzero.executor.exception.OperationalTokenParameterException;
+import com.qzero.executor.function.ExecutableAction;
+import com.qzero.executor.function.IExecutableAction;
 import com.qzero.executor.token.OperatorToken;
 import com.qzero.executor.token.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 public class ExpressionLatexTranslator {
@@ -26,6 +31,35 @@ public class ExpressionLatexTranslator {
     }
 
     /**
+     * Get proper action for generating latex
+     * The one with less parameters and all the parameters must be Double
+     * @param executableAction
+     * @return proper action,if none return null
+     */
+    private static IExecutableAction getProperAction(ExecutableAction executableAction){
+        if(executableAction==null || executableAction.getActionMap()==null)
+            return null;
+
+        Map<String,IExecutableAction> actionMap=executableAction.getActionMap();
+        Set<String> keySet=actionMap.keySet();
+
+        IExecutableAction result=null;
+        for(String key:keySet){
+            if(!key.matches("D.*"))
+                continue;
+            if(result==null)
+                result=actionMap.get(key);
+            else{
+                IExecutableAction action=actionMap.get(result);
+                if(result.getParameterCount()>action.getParameterCount())
+                    result=action;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Translate compiled expression into latex to show
      *
      * @param compiled Compiled expression
@@ -35,15 +69,8 @@ public class ExpressionLatexTranslator {
         if (compiled == null || compiled.isEmpty())
             return null;
 
-        try {
-            ExpressionExecutor.check(compiled);
-        } catch (Exception e) {
-            e.printStackTrace();
-            //Expression check failed,it can not be translated
-            return null;
-        }
+        Stack<String> stringTokenStack = new Stack<>();
 
-        Stack<String> constantTokenStack = new Stack<>();
         for (ExpressionToken token : compiled) {
 
             if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_CONSTANT) {
@@ -57,44 +84,53 @@ public class ExpressionLatexTranslator {
                 if (constant.equals("pi"))
                     constant = "\\pi ";
 
-                constantTokenStack.push(constant);
+                stringTokenStack.push(constant);
                 continue;
             }else if(token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_VARIABLE){
 
                 VariableToken variableToken= (VariableToken) token.getTokenObject();
-                constantTokenStack.push(variableToken.getTokenString());
+                stringTokenStack.push(variableToken.getTokenString());
 
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_OPERATOR) {
 
                 OperatorToken operatorToken = (OperatorToken) token.getTokenObject();
-                int count=operatorToken.getAction().getParameterCount();
+
+                IExecutableAction action=getProperAction(operatorToken.getAction());
+                if(action==null){
+                    throw new OperationalTokenParameterException(token,"compiling latex");
+                }
+                int count=action.getParameterCount();
 
                 String[] args=new String[count];
                 for(int i=0;i<count;i++){
-                    args[count-1-i]=constantTokenStack.pop();
+                    args[count-1-i]=stringTokenStack.pop();
                 }
 
-                constantTokenStack.push(getOperatorLatex(operatorToken.getType(),args));
+                stringTokenStack.push(getOperatorLatex(operatorToken.getType(),args));
 
                 continue;
             } else if (token.getTokenType() == ExpressionToken.TokenType.TOKEN_TYPE_FUNCTION) {
                 FunctionToken functionToken = (FunctionToken) token.getTokenObject();
-                ExecutableAction action = functionToken.getAction();
+
+                IExecutableAction action = getProperAction(functionToken.getAction());
+                if(action==null){
+                    throw new OperationalTokenParameterException(token,"compiling latex");
+                }
 
                 String functionName = functionToken.getTokenString();
                 int parametersCount = action.getParameterCount();
                 String[] parameters = new String[parametersCount];
                 for (int i = 0; i < parametersCount; i++) {
-                    parameters[parametersCount - 1 - i] = constantTokenStack.pop();
+                    parameters[parametersCount - 1 - i] = stringTokenStack.pop();
                 }
 
-                constantTokenStack.push(getFunctionLatex(functionName, parameters));
+                stringTokenStack.push(getFunctionLatex(functionName, parameters));
 
                 continue;
             }
         }
 
-        return constantTokenStack.pop();
+        return stringTokenStack.pop();
     }
 
     private static String getOperatorLatex(OperatorToken.OperatorType type,String[] args){

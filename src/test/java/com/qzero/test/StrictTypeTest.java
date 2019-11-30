@@ -20,7 +20,6 @@ public class StrictTypeTest {
         String script="sqrt(x)";
 
         List<ExpressionToken> compiled=Init.getCompiled(script);
-        ExpressionExecutor.check(compiled);
         System.out.println();
     }
 

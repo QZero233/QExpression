@@ -1,4 +1,4 @@
-package com.qzero.executor.token;
+package com.qzero.executor.function;
 
 import com.qzero.executor.BaseDataMate;
 
@@ -7,7 +7,7 @@ import com.qzero.executor.BaseDataMate;
  * @author QZero
  * @version 1.0
  */
-public interface ExecutableAction {
+public interface IExecutableAction {
 
     int getParameterCount();
     BaseDataMate execute(BaseDataMate[] parameters);

@@ -1,13 +1,16 @@
 package com.qzero.executor.token;
 
 import com.qzero.executor.BaseDataMate;
+import com.qzero.executor.function.ExecutableAction;
+import com.qzero.executor.function.IExecutableAction;
+import com.qzero.executor.operator.OperatorLoader;
 
 /**
  * Class of operator token
  * @author QZero
  * @version 1.0
  */
-public class OperatorToken extends TokenObject {
+public class OperatorToken extends OperationalToken {
 
     public static final int LEVEL_VERY_LOW=0;
     public static final int LEVEL_LOW=1;
@@ -15,30 +18,36 @@ public class OperatorToken extends TokenObject {
     public static final int LEVEL_HIGHEST=3;
 
     public enum OperatorType{
-        OPERATOR_TYPE_ADD,
-        OPERATOR_TYPE_MINUS,
-        OPERATOR_TYPE_MULTIPLY,
-        OPERATOR_TYPE_DIVIDE,
-        OPERATOR_TYPE_EQUAL_TO,
-        OPERATOR_TYPE_NOT_EQUAL_TO,
-        OPERATOR_TYPE_MORE_THAN,
-        OPERATOR_TYPE_LESS_THAN,
-        OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO,
-        OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO,
-        OPERATOR_TYPE_AND,
-        OPERATOR_TYPE_OR,
-        OPERATOR_TYPE_NOT,
+        OPERATOR_TYPE_ADD("+",LEVEL_LOW),
+        OPERATOR_TYPE_MINUS("-",LEVEL_LOW),
+        OPERATOR_TYPE_MULTIPLY("*",LEVEL_HIGH),
+        OPERATOR_TYPE_DIVIDE("/",LEVEL_HIGH),
+        OPERATOR_TYPE_EQUAL_TO("==",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_NOT_EQUAL_TO("!=",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_MORE_THAN(">",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_LESS_THAN("<",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO(">=",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO("<=",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_AND("&&",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_OR("||",LEVEL_VERY_LOW),
+        OPERATOR_TYPE_NOT("!",LEVEL_VERY_LOW);
+
+        private String sign;
+        private int level;
+        OperatorType(String operatorSign,int level){
+            this.sign=operatorSign;
+            this.level=level;
+        }
+
     };
 
     private int operatorLevel;
     private OperatorType type;
-    private ExecutableAction action;
 
-    private OperatorToken(String tokenString, int operatorLevel, OperatorType type,ExecutableAction action) {
-        super(tokenString);
+    public OperatorToken(String tokenString, int operatorLevel, OperatorType type, ExecutableAction action) {
+        super(tokenString,action);
         this.operatorLevel = operatorLevel;
         this.type = type;
-        this.action=action;
     }
 
     /**
@@ -47,320 +56,19 @@ public class OperatorToken extends TokenObject {
      * @return Operator token object,null if failed
      */
     public static OperatorToken getOperatorToken(String operatorSign){
-        switch (operatorSign){
-            case "+":
-                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_ADD, new ExecutableAction() {
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
+       ExecutableAction action= OperatorLoader.getOperatorAction(operatorSign);
+       if(action==null)
+           return null;
 
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Double result=((Double)parameters[0].getDataValue())+((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
-                    }
+       OperatorType[] types=OperatorType.values();
+       for(OperatorType type:types){
+           if(type.sign.equals(operatorSign)){
+               OperatorToken operatorToken=new OperatorToken(operatorSign,type.level,type,action);
+               return operatorToken;
+           }
+       }
 
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Double.class;
-                    }
-                });
-            case "-":
-                return new OperatorToken(operatorSign, LEVEL_LOW, OperatorType.OPERATOR_TYPE_MINUS, new ExecutableAction() {
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Double result=((Double)parameters[0].getDataValue())-((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
-                    }
-
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Double.class;
-                    }
-                });
-            case "*":
-                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_MULTIPLY, new ExecutableAction() {
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Double result=((Double)parameters[0].getDataValue())*((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Double.class;
-                    }
-                });
-            case "/":
-                return new OperatorToken(operatorSign, LEVEL_HIGH, OperatorType.OPERATOR_TYPE_DIVIDE, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Double result=((Double)parameters[0].getDataValue())/((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_DOUBLE,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Double.class;
-                    }
-                });
-            case "==":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_EQUAL_TO, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Double)parameters[0].getDataValue()).equals((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "!=":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_NOT_EQUAL_TO, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=!((Double)parameters[0].getDataValue()).equals((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case ">":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_MORE_THAN, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Double)parameters[0].getDataValue())>((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "<":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Double)parameters[0].getDataValue())<((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case ">=":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_MORE_THAN_OR_EQUAL_TO, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Double)parameters[0].getDataValue())>=((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "<=":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_LESS_THAN_OR_EQUAL_TO, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Double)parameters[0].getDataValue())<=((Double) parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Double.class,Double.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "!":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_NOT, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 1;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=!((Boolean)parameters[0].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Boolean.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "||":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_OR, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Boolean)parameters[0].getDataValue())||((Boolean)parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Boolean.class,Boolean.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            case "&&":
-                return new OperatorToken(operatorSign, LEVEL_VERY_LOW, OperatorType.OPERATOR_TYPE_AND, new ExecutableAction() {
-
-                    @Override
-                    public int getParameterCount() {
-                        return 2;
-                    }
-
-                    @Override
-                    public BaseDataMate execute(BaseDataMate[] parameters) {
-                        Boolean result=((Boolean)parameters[0].getDataValue())&&((Boolean)parameters[1].getDataValue());
-                        return new BaseDataMate(BaseDataMate.DataType.DATA_TYPE_BOOLEAN,result);
-                    }
-
-                    @Override
-                    public Class[] getParametersType() {
-                        return new Class[]{Boolean.class,Boolean.class};
-                    }
-
-                    @Override
-                    public Class getReturnValueType() {
-                        return Boolean.class;
-                    }
-                });
-            default:
-                return null;
-        }
+       return null;
     }
 
     public int getOperatorLevel() {
